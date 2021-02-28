@@ -1,4 +1,4 @@
-# Assignment 2
+# Docker Containers and Orchestration - SOA Assignment 02 Summer Term 2020
 
 In assignment 2, we package your application into containers and run these containers.
 
