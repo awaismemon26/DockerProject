@@ -1,0 +1,281 @@
+# open api speicification document - header with version
+# document should be named openapi.yaml or openapi.json
+openapi: "3.0.4"
+# general information
+info:
+  title: Universität Bamberg Beverage Management Service
+  version: "2.0"
+  description: | # | for multi line description
+    Beveage Management Service for employees to Create, Read, Update and Delete (CRUD) the Beverages.
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+servers:
+  - url: http://localhost:9999/v1
+    description: Database Handler
+externalDocs:
+  description: "Find out more about our group :)"
+  url: "https://gitlab.rz.uni-bamberg.de/dsg/soa/group17"
+
+# reusable elements within the API specification
+components:
+  # data elements (JSON Schema)
+  schemas:
+    BottleDto:
+      type: object
+      required:
+        - name
+        - volume
+        - isAlcoholic
+        - volumePercent
+        - price
+        - supplier
+        - inStock
+      properties:
+        id:
+          type: number
+        name:
+          type: string
+        volume:
+          type: number
+        isAlcoholic:
+          type: boolean
+        volumePercent:
+          type: number
+        price:
+          type: number
+        supplier:
+          type: string
+        inStock:
+          type: number
+        href:
+          type: string
+      xml:
+        name: bottle
+    CrateDto:
+      type: object
+      required:
+        - bottle
+        - noOfBottles
+        - price
+        - inStock
+      properties:
+        id:
+          type: number
+        bottle:
+          $ref: "#/components/schemas/BottleDto"
+        noOfBottles:
+          type: number
+        price:
+          type: number
+        inStock:
+          type: number
+        href:
+          type: string
+      xml:
+        name: crate
+
+# resources (one of the REST principles)
+paths:
+  /employee:
+    description: Employee bottles and crates controller
+  /employee/bottles:
+    description: Base URL for bottles operations/methods for employees using Beverage Management Service
+    # bottles operations/methods via standard HTTP verbs
+    get:
+      summary: Gets all bottles
+      # possible responses and their parameters
+      responses:
+        200:
+          description: Got all bottles
+          content:
+            application/json:
+              # response schema
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/BottleDto"
+        404:
+          description: Requested resource not found
+        500:
+          description:  The database server is not online
+    post:
+      summary: Creates a bottle
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/BottleDto"
+      responses:
+        201:
+          description: Created a bottle
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/BottleDto"
+        400:
+          description: Bad Request or Message body was empty
+        404:
+          description: Requested resource not found
+        500:
+          description: The database server is not online
+  /employee/bottles/{bottleId}:
+    description: Base URL for specific bottle operations/methods for employees using Beverage Management Service
+    # this parameter definition is valid for all subsequent methods
+    parameters:
+      - name: bottleId
+        # path parameters must be always mandatory
+        required: true
+        in: path
+        schema:
+          type: number
+    get:
+      summary: Gets a specific bottle by id
+      responses:
+        200:
+          description: Got a specific bottle by id
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/BottleDto"
+        404:
+          description: Requested resource not found
+        500:
+          description: The database server is not online
+    patch:
+      summary: Updates a specific bottle by id
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/BottleDto"
+      responses:
+        201:
+          description: Updated a specific bottle by id
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/BottleDto"
+        400:
+          description: Bad Request or Message body was empty
+        404:
+          description: Requested resource not found
+        500:
+          description: The database server is not online
+    delete:
+      summary: Deletes a specific bottle by id
+      responses:
+        204:
+          description: Deleted a specific bottle by id
+        404:
+          description: Requested resource not found
+        500:
+          description: The database server is not online
+  /employee/crates:
+    description: Base URL for crates operations/methods for employees using Beverage Management Service
+    # crates operations/methods via standard HTTP verbs
+    get:
+      summary: Gets all crates
+      # possible responses and their parameters
+      responses:
+        200:
+          description: Got all crates
+          content:
+            application/json:
+              # response schema
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CrateDto"
+        404:
+          description: Requested resource not found
+        500:
+          description: The database server is not online
+    post:
+      summary: Creates a crate
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CrateDto"
+      responses:
+        201:
+          description: Created a crate
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CrateDto"
+        400:
+          description: Bad Request or Message body was empty
+        404:
+          description: Requested resource not found
+        500:
+          description: The database server is not online
+  /employee/crates/{crateId}:
+    description: Base URL for specific crate operations/methods for employees using Beverage Management Service
+    # this parameter definition is valid for all subsequent methods
+    parameters:
+      - name: crateId
+        # path parameters must be always mandatory
+        required: true
+        in: path
+        schema:
+          type: number
+    get:
+      summary: Gets a specific crate by id
+      responses:
+        200:
+          description: Got a specific crate by id
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CrateDto"
+        404:
+          description: Requested resource not found
+        500:
+          description: The database server is not online
+    patch:
+      summary: Updates a specific crate by id
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CrateDto"
+      responses:
+        201:
+          description: Updated a specific crate by id
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CrateDto"
+        400:
+          description: Bad Request or Message body was empty
+        404:
+          description: Requested resource not found
+        500:
+          description: The database server is not online
+    delete:
+      summary: Deletes a specific crate by id
+      responses:
+        204:
+          description: Deleted a specific crate by id
+        404:
+          description: Requested resource not found
+        500:
+          description: The database server is not online

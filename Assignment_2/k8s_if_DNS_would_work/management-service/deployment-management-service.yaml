@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: group17-management-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: beerz
+  template:
+    metadata:
+      labels:
+        app: beerz
+    spec:
+      containers:
+        - name: management-service
+          image: grpsvntn/ms
+          imagePullPolicy: IfNotPresent
+          stdin: true
+          tty: true
+          env:
+            - name: DB_HOST
+              value: minikube
+            - name: DB_PORT
+              value: "9999"
+          ports:
+            - containerPort: 9997

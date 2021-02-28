@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: group17-database-handler
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: beerz
+  template:
+    metadata:
+      labels:
+        app: beerz
+    spec:
+      volumes:
+        - name: database-handler-storage
+          persistentVolumeClaim:
+            claimName: database-handler-pvc
+      containers:
+        - name: database-handler
+          image: grpsvntn/dh
+          imagePullPolicy: IfNotPresent
+          stdin: true
+          tty: true
+          ports:
+            - containerPort: 9999
+          volumeMounts:
+          - name: database-handler-storage
+            mountPath: /app/files

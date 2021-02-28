@@ -1,0 +1,171 @@
+# open api speicification document - header with version
+# document should be named openapi.yaml or openapi.json
+openapi: "3.0.4"
+# general information
+info:
+  title: Universität Bamberg Beverage Service
+  version: "2.0"
+  description: | # | for multi line description
+    Beveage Service for customers to Read the Beverages.
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+servers:
+  - url: http://localhost:9999/v1
+    description: Database Handler
+externalDocs:
+  description: "Find out more about our group :)"
+  url: "https://gitlab.rz.uni-bamberg.de/dsg/soa/group17"
+
+# reusable elements within the API specification
+components:
+  # data elements (JSON Schema)
+  schemas:
+    BottleDto:
+      type: object
+      required:
+        - name
+        - volume
+        - isAlcoholic
+        - volumePercent
+        - price
+        - supplier
+        - inStock
+      properties:
+        id:
+          type: number
+        name:
+          type: string
+        volume:
+          type: number
+        isAlcoholic:
+          type: boolean
+        volumePercent:
+          type: number
+        price:
+          type: number
+        supplier:
+          type: string
+        inStock:
+          type: number
+        href:
+          type: string
+      xml:
+        name: bottle
+    CrateDto:
+      type: object
+      required:
+        - bottle
+        - noOfBottles
+        - price
+        - inStock
+      properties:
+        id:
+          type: number
+        bottle:
+          $ref: "#/components/schemas/BottleDto"
+        noOfBottles:
+          type: number
+        price:
+          type: number
+        inStock:
+          type: number
+        href:
+          type: string
+      xml:
+        name: crate
+
+# resources (one of the REST principles)
+paths:
+  /customer:
+    description: Customer bottles and crates controller
+  /customer/bottles:
+    description: Base URL for bottles operation/method for customers using Beverage Service
+    # bottles operations/methods via standard HTTP verbs
+    get:
+      summary: Gets all bottles
+      # possible responses and their parameters
+      responses:
+        200:
+          description: Got all bottles
+          content:
+            application/json:
+              # response schema
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/BottleDto"
+        404:
+          description: Requested resource not found
+        500:
+          description: The database server is not online
+  /customer/bottles/{bottleId}:
+    description: Base URL for specific bottle operation/method for customers using Beverage Service
+    # this parameter definition is valid for all subsequent methods
+    parameters:
+      - name: bottleId
+        # path parameters must be always mandatory
+        required: true
+        in: path
+        schema:
+          type: number
+    get:
+      summary: Gets a specific bottle by id
+      responses:
+        200:
+          description: Got a specific bottle by id
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/BottleDto"
+        404:
+          description: Requested resource not found
+        500:
+          description: The database server is not online
+  /customer/crates:
+    description: Base URL for crates operation/method for customers using Beverage Service
+    # crates operations/methods via standard HTTP verbs
+    get:
+      summary: Gets all crates
+      # possible responses and their parameters
+      responses:
+        200:
+          description: Got all crates
+          content:
+            application/json:
+              # response schema
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CrateDto"
+        404:
+          description: Requested resource not found
+        500:
+          description: The database server is not online
+  /customer/crates/{crateId}:
+    description: Base URL for specific crate operation/method for customers using Beverage Service
+    # this parameter definition is valid for all subsequent methods
+    parameters:
+      - name: crateId
+        # path parameters must be always mandatory
+        required: true
+        in: path
+        schema:
+          type: number
+    get:
+      summary: Gets a specific crate by id
+      responses:
+        200:
+          description: Got a specific crate by id
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CrateDto"
+        404:
+          description: Requested resource not found
+        500:
+          description: The database server is not online

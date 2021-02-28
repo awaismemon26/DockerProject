@@ -1,0 +1,34 @@
+version: "2.0"
+
+services:
+  beverage_service:
+    build:
+      context: beverage_service
+    container_name: beverage_service
+    ports:
+      - 9998:9998
+    environment:
+      - DB_HOST=db
+      - DB_PORT=9999
+    depends_on:
+      - db
+    stdin_open: true
+  management_service:
+    build:
+      context: management_service
+    container_name: management_service
+    ports:
+      - 9997:9997
+    environment:
+      - DB_HOST=db
+      - DB_PORT=9999
+    depends_on:
+      - db
+    stdin_open: true
+  db:
+    build:
+      context: database_handler
+    container_name: database_handler
+    volumes:
+      - ./volumes:/app/files
+    stdin_open: true

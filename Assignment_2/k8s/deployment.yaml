@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: group17
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: beerz
+  template:
+    metadata:
+      labels:
+        app: beerz
+    spec:
+      volumes:
+        - name: database-handler-storage
+          persistentVolumeClaim:
+            claimName: database-handler-pvc
+      containers:
+        - name: beverage-service
+          image: grpsvntn/bs
+          imagePullPolicy: IfNotPresent
+          stdin: true
+          tty: true
+          ports:
+            - containerPort: 9998
+        - name: management-service
+          image: grpsvntn/ms
+          imagePullPolicy: IfNotPresent
+          stdin: true
+          tty: true
+          ports:
+            - containerPort: 9997
+        - name: database-handler
+          image: grpsvntn/dh
+          imagePullPolicy: IfNotPresent
+          stdin: true
+          tty: true
+          volumeMounts:
+          - name: database-handler-storage
+            mountPath: /app/files

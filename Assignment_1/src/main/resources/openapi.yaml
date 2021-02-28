@@ -1,0 +1,441 @@
+# open api speicification document - header with version
+# document should be named openapi.yaml or openapi.json
+openapi: "3.0.4"
+# general information
+info:
+  title: Universität Bamberg Beverage Service
+  version: "1.0"
+  description: | # | for multi line description
+    Beveage Service for people to complement their nice barbecues.
+servers:
+  - url: http://localhost:9999/v1
+    description: Development Server
+
+# reusable elements within the API specification
+components:
+  # data elements (JSON Schema)
+  schemas:
+    BottleDto:
+      type: object
+      properties:
+        id:
+          type: int
+        name:
+          type: string
+        volume:
+          type: double
+        isAlcoholic:
+          type: boolean
+        volumePercent:
+          type: double
+        price:
+          type: double
+        supplier:
+          type: string
+        inStock:
+          type: int
+        href:
+          type: string
+      $ref: "#/components/schemas/BottleDto"
+      xml:
+        name: bottle
+    BottleOrderDto:
+      type: object
+      properties:
+        number:
+          type: int
+        bottleId:
+          type: int
+        quantity:
+          type: int
+      $ref: "#/components/schemas/BottleOrderDto"
+      xml:
+        name: order
+    CrateDto:
+      type: object
+      properties:
+        id:
+          type: int
+        bottle:
+          $ref: "#/components/schemas/BottleDto"
+        noOfBottles:
+          type: int
+        price:
+          type: double
+        inStock:
+          type: int
+        href:
+          type: string
+      $ref: "#/components/schemas/CrateDto"
+      xml:
+        name: crate
+    CrateOrderDto:
+      type: object
+      properties:
+        number:
+          type: int
+        crateId:
+          type: int
+        quantity:
+          type: int
+      $ref: "#/components/schemas/CrateOrderDto"
+      xml:
+        name: order
+    OrderDto:
+      type: object
+      properties:
+        id:
+          type: int
+        bottles:
+          type: array
+          items:
+            $ref: "#/components/schemas/BottleDto"
+        crates:
+          type: array
+          items:
+            $ref: "#/components/schemas/CrateDto"
+        price:
+          type: double
+        status:
+          type: enum
+        href:
+          type: string
+      $ref: "#/components/schemas/OrderDto"
+      xml:
+        name: order
+    OutOfStockException:
+      type: object
+      $ref: "#/components/schemas/OutOfStockException"
+
+# resources (one of the REST principles)
+paths:
+  /customer/bottles:
+    description: Customer bottles and crates controller
+    # operations/methods via standard HTTP verbs
+    get:
+      summary: Get all bottles
+      # possible responses and their parameters
+      responses:
+        200:
+          description: Getting all bottles
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BottleDto'
+  /customer/bottles/bottleId:
+    description: Customer bottles and crates controller
+    # operations/methods via standard HTTP verbs
+    get:
+      summary: Get a single bottle by id
+      # request parameters
+      parameters:
+        - name: bottleId
+          in: query
+          schema:
+            type: number
+      # possible responses and their parameters
+      responses:
+        200:
+          description: Getting a single bottle by id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BottleDto'
+        404:
+          description: Not found
+  /customer/bottles/searchByName:
+    description: Customer bottles and crates controller
+    # operations/methods via standard HTTP verbs
+    get:
+      summary: Get a single bottle by name
+      # request parameters
+      parameters:
+        - name: name
+          in: query
+          schema:
+            type: string
+      # possible responses and their parameters
+      responses:
+        200:
+          description: Getting a single bottle by name
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BottleDto'
+  /customer/bottles/searchByPrice:
+    description: Customer bottles and crates controller
+    # operations/methods via standard HTTP verbs
+    get:
+      summary: Get list of bottles in a price range
+      # request parameters
+      parameters:
+        - name: minPrice
+          in: query
+          schema:
+            type: string
+        - name: maxPrice
+          in: query
+          schema:
+            type: string
+      # possible responses and their parameters
+      responses:
+        200:
+          description: Getting a list of bottles in a price range
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BottleDto'
+        400:
+          description: Price range must be valid double value, like '2' or '3.5'
+  /customer/bottles/crates:
+    description: Customer bottles and crates controller
+    # operations/methods via standard HTTP verbs
+    get:
+      summary: Get all crates
+      # possible responses and their parameters
+      responses:
+        200:
+          description: Getting all crates
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CrateDto'
+  /customer/orders/orderId:
+    description: Customer order controller
+    # operations/methods via standard HTTP verbs
+    get:
+      summary: Get a single order by id
+      # request parameters
+      parameters:
+        - name: orderId
+          in: query
+          schema:
+            type: number
+      # possible responses and their parameters
+      responses:
+        200:
+          description: Getting a single order by id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderDto'
+        404:
+          description: Not found
+  /customer/orders/placeOrder:
+    description: Customer order controller
+    # operations/methods via standard HTTP verbs
+    post:
+      summary: Create an order
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrderDto"
+      # possible responses and their parameters
+      responses:
+        201:
+          description: Created an order
+          content:
+            application/*:
+              schema:
+                $ref: "#/components/schemas/OrderDto"
+        400:
+          description: Not enough supplies in stock
+          content:
+            application/*:
+              schema:
+                $ref: "#/components/schemas/OutOfStockException"
+        500:
+          description: could not construct URI
+  /customer/orders/editOrder/orderId:
+    description: Customer order controller
+    # operations/methods via standard HTTP verbs
+    patch:
+      summary: Edit an order
+      # request parameters
+      parameters:
+        - name: orderId
+          in: query
+          schema:
+            type: number
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrderDto"
+      # possible responses and their parameters
+      responses:
+        200:
+          description: Edited an order
+          content:
+            application/*:
+              schema:
+                $ref: "#/components/schemas/OrderDto"
+        404:
+          description: order with ID not found
+        406:
+          description: cannot edit an already processed order
+        400:
+          description: Not enough supplies in stock
+          content:
+            application/*:
+              schema:
+                $ref: "#/components/schemas/OutOfStockException"
+        500:
+          description: could not construct URI
+  /customer/orders/deleteOrder/orderId:
+    description: Customer order controller
+    # operations/methods via standard HTTP verbs
+    delete:
+      summary: Delete an order
+      # request parameters
+      parameters:
+        - name: orderId
+          in: query
+          schema:
+            type: number
+      # possible responses and their parameters
+      responses:
+        200:
+          description: Deleted an order
+          content:
+            application/*:
+              schema:
+                $ref: "#/components/schemas/OrderDto"
+        404:
+          description: order with ID not found
+        406:
+          description: cannot cancel an already processed order
+
+  /employee/creates/createBottle:
+    description: Employee controller
+    # operations/methods via standard HTTP verbs
+    post:
+      summary: Create a bottle
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BottleDto"
+      # possible responses and their parameters
+      responses:
+        201:
+          description: Created a bottle
+          content:
+            application/*:
+              schema:
+                $ref: "#/components/schemas/BottleDto"
+        500:
+          description: could not construct URI
+  /employee/creates/createCrate:
+    description: Employee controller
+    # operations/methods via standard HTTP verbs
+    post:
+      summary: Create a crate
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CrateDto"
+      # possible responses and their parameters
+      responses:
+        201:
+          description: Created a bottle
+          content:
+            application/*:
+              schema:
+                $ref: "#/components/schemas/CrateDto"
+        500:
+          description: could not construct URI
+  /employee/creates/editBottle/bottleId:
+    description: Employee controller
+    # operations/methods via standard HTTP verbs
+    patch:
+      summary: Edit a bottle
+      # request parameters
+      parameters:
+        - name: bottleId
+          in: query
+          schema:
+            type: number
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BottleDto"
+      # possible responses and their parameters
+      responses:
+        200:
+          description: Edited a bottle
+          content:
+            application/*:
+              schema:
+                $ref: "#/components/schemas/BottleDto"
+        404:
+          description: Not found
+        500:
+          description: could not construct URI
+  /employee/creates/editCrate/crateId:
+    description: Employee controller
+    # operations/methods via standard HTTP verbs
+    patch:
+      summary: Edit a crate
+      # request parameters
+      parameters:
+        - name: crateId
+          in: query
+          schema:
+            type: number
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CrateDto"
+      # possible responses and their parameters
+      responses:
+        200:
+          description: Edited a crate
+          content:
+            application/*:
+              schema:
+                $ref: "#/components/schemas/CrateDto"
+        404:
+          description: Not found
+        500:
+          description: could not construct URI
+  /employee/creates/processOrder/orderId:
+    description: Employee controller
+    # operations/methods via standard HTTP verbs
+    patch:
+      summary: Process an order
+      # request parameters
+      parameters:
+        - name: orderId
+          in: query
+          schema:
+            type: number
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrderDto"
+      # possible responses and their parameters
+      responses:
+        200:
+          description: Processed an order
+          content:
+            application/*:
+              schema:
+                $ref: "#/components/schemas/OrderDto"
+        404:
+          description: Not found
+        406:
+          description: Cannot process. Already Processed Order
+        400:
+          description: Not enough supplies in stock
+          content:
+            application/*:
+              schema:
+                $ref: "#/components/schemas/OutOfStockException"
+        500:
+          description: could not construct URI
